@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drama Collection</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: #1a1a1a;
+        color: white;
+        overflow-x: hidden;
+      }
+
+      /* Navbar */
+      .navbar {
+        background-color: #2c2c2c;
+        padding: 1rem 2rem;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .nav-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .logo {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #ff6b6b;
+      }
+
+      .nav-menu {
+        display: flex;
+        list-style: none;
+        gap: 2rem;
+      }
+
+      .nav-link {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+      }
+
+      .nav-link:hover,
+      .nav-link.active {
+        background-color: #ff6b6b;
+        color: white;
+      }
+
+      /* Main Content */
+      .main-content {
+        margin-top: 80px;
+        min-height: 100vh;
+      }
+
+      /* Image Slider */
+      .slider-container {
+        position: relative;
+        width: 100%;
+        height: 400px;
+        overflow: hidden;
+        margin-bottom: 3rem;
+      }
+
+      .slider {
+        display: flex;
+        width: 400%;
+        height: 100%;
+        transition: transform 0.5s ease-in-out;
+      }
+
+      .slide {
+        width: 25%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+
+      .slide::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          45deg,
+          rgba(0, 0, 0, 0.7),
+          rgba(255, 107, 107, 0.3)
+        );
+      }
+
+      .slide-content {
+        text-align: center;
+        z-index: 2;
+        color: white;
+      }
+
+      .slide h2 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      }
+
+      /* Section Headers */
+      .section-header {
+        text-align: center;
+        margin: 3rem 0;
+        padding: 0 2rem;
+      }
+
+      .section-header h2 {
+        font-size: 2.5rem;
+        color: #ff6b6b;
+        margin-bottom: 1rem;
+      }
+
+      .section-header p {
+        font-size: 1.2rem;
+        color: #ccc;
+      }
+
+      /* Drama Cards */
+      .drama-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        padding: 0 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        margin-bottom: 3rem;
+      }
+
+      .drama-card {
+        background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .drama-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(255, 107, 107, 0.3);
+      }
+
+      .card-image {
+        width: 100%;
+        height: 350px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+      }
+
+      .card-image::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.7));
+      }
+
+      .card-content {
+        padding: 1.5rem;
+      }
+
+      .card-title {
+        font-size: 1.4rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        color: #ff6b6b;
+      }
+
+      .card-synopsis {
+        color: #ccc;
+        line-height: 1.6;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      /* Modal */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .modal-content {
+        background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        transform: scale(0.7);
+        transition: transform 0.3s ease;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-overlay.active .modal-content {
+        transform: scale(1);
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+      }
+
+      .modal-close:hover {
+        background: #ff5252;
+        transform: rotate(90deg);
+      }
+
+      .modal-image {
+        width: 100%;
+        height: 300px;
+        background-size: cover;
+        background-position: center;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+      }
+
+      .modal-title {
+        font-size: 1.8rem;
+        color: #ff6b6b;
+        margin-bottom: 1rem;
+      }
+
+      .modal-details {
+        margin-bottom: 1.5rem;
+      }
+
+      .modal-detail-item {
+        display: flex;
+        margin-bottom: 0.5rem;
+      }
+
+      .modal-detail-label {
+        font-weight: bold;
+        color: #ff6b6b;
+        width: 120px;
+      }
+
+      .modal-detail-value {
+        color: #ccc;
+      }
+
+      .modal-synopsis {
+        color: #ccc;
+        line-height: 1.6;
+      }
+
+      /* Page Navigation */
+      .page-nav {
+        display: none;
+      }
+
+      .page-nav.active {
+        display: block;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .nav-container {
+          padding: 0 1rem;
+        }
+
+        .drama-grid {
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 1.5rem;
+          padding: 0 1rem;
+        }
+
+        .slide h2 {
+          font-size: 2rem;
+        }
+
+        .section-header h2 {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo">Drama Elsa</div>
+        <ul class="nav-menu">
+          <li>
+            <a href="#" class="nav-link active" onclick="showPage('home')"
+              >Beranda</a
+            >
+          </li>
+          <li>
+            <a href="#" class="nav-link" onclick="showPage('collection')"
+              >Koleksi Drama</a
+            >
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Home Page -->
+      <div id="home-page" class="page-nav active">
+        <!-- Image Slider -->
+        <div class="slider-container">
+          <div class="slider" id="slider">
+            <div
+              class="slide"
+              style="
+                background-image: url('https://www.vidio.com/blog/wp-content/uploads/sites/2/2025/07/S-Line-Main-KV-Poster-Landscape-1.jpg');
+              "
+            >
+              <div class="slide-content"></div>
+            </div>
+            <div
+              class="slide"
+              style="
+                background-image: url('https://media.suara.com/pictures/970x544/2025/02/12/35138-poster-drama-friendly-rivalry-xsoompi.jpg');
+              "
+            >
+              <div class="slide-content"></div>
+            </div>
+            <div
+              class="slide"
+              style="
+                background-image: url('https://static.promediateknologi.id/crop/0x0:1079x671/750x500/webp/photo/p1/274/2025/06/11/IMG_20250611_074109-1404562781.jpg');
+              "
+            >
+              <div class="slide-content"></div>
+            </div>
+            <div
+              class="slide"
+              style="
+                background-image: url('https://via.placeholder.com/1200x400/f7dc6f/ffffff?text=Gambar+4');
+              "
+            >
+              <div class="slide-content"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Featured Section -->
+        <section class="section-header">
+          <h2>Drama Favorit</h2>
+          <p>Koleksi drama pilihan terbaik untuk Anda</p>
+        </section>
+
+        <!-- Featured Drama Cards -->
+        <div class="drama-grid" id="featured-dramas">
+          <!-- Cards will be generated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Collection Page -->
+      <div id="collection-page" class="page-nav">
+        <section class="section-header">
+          <h2>Koleksi Drama</h2>
+          <p>Semua drama dalam koleksi kami</p>
+        </section>
+
+        <!-- All Drama Cards -->
+        <div class="drama-grid" id="all-dramas">
+          <!-- Cards will be generated by JavaScript -->
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <div class="modal-image" id="modal-image"></div>
+        <h3 class="modal-title" id="modal-title"></h3>
+        <div class="modal-details">
+          <div class="modal-detail-item">
+            <span class="modal-detail-label">Tahun Rilis:</span>
+            <span class="modal-detail-value" id="modal-year"></span>
+          </div>
+          <div class="modal-detail-item">
+            <span class="modal-detail-label">Episode:</span>
+            <span class="modal-detail-value" id="modal-episodes"></span>
+          </div>
+          <div class="modal-detail-item">
+            <span class="modal-detail-label">Rating:</span>
+            <span class="modal-detail-value" id="modal-rating"></span>
+          </div>
+        </div>
+        <div class="modal-synopsis" id="modal-synopsis"></div>
+      </div>
+    </div>
+
+    <script>
+      // Drama data
+      const dramaData = [
+        {
+          id: 1,
+          title: "Victory is in Hand",
+          synopsis:
+            "Jo, the daughter of a billionaire, was betrayed by the two people she trusted most—her husband and her best friend. But fate gave her a second chance...",
+          year: "2024",
+          episodes: "24",
+          rating: "9.2/10",
+          image:
+            "https://i.pinimg.com/736x/12/fe/30/12fe30c098a97cc449dd7be49469f45a.jpg",
+          featured: true,
+        },
+        {
+          id: 2,
+          title: "Spoiled Rotten: Flash Marriage",
+          synopsis:
+            "5 years ago, Lydia Tate accidentally saved Eric Lucia, Lucia Group's CEO, and got pregnant overnight. 6 years later, Lydia meets Eric again...",
+          year: "2023",
+          episodes: "32",
+          rating: "8.8/10",
+          image:
+            "https://i.pinimg.com/736x/c8/c9/46/c8c946258cc2b64594628b61bf44b842.jpg",
+          featured: true,
+        },
+        {
+          id: 3,
+          title: "Desserts Lies and Love",
+          synopsis:
+            "Lydia's lifelong dream is to become a pastry chef and make lives sweeter with her desserts - yet her own life is full of bitterness...",
+          year: "2024",
+          episodes: "20",
+          rating: "9.0/10",
+          image:
+            "https://i.pinimg.com/736x/df/18/b9/df18b9e83d64252b94b6006bcaa3540d.jpg",
+          featured: true,
+        },
+
+        {
+          id: 5,
+          title: "The Heirs",
+          synopsis:
+            "A group of wealthy, privileged high school students as they are groomed to take over their families' business empires...",
+          year: "2022",
+          episodes: "20",
+          rating: "8.5/10",
+          image:
+            "https://i.pinimg.com/736x/4a/b5/98/4ab598dfcc7fa7ca9b80b609263dde4c.jpg",
+          featured: false,
+        },
+        {
+          id: 6,
+          title: "Goblin",
+          synopsis:
+            "A goblin who needs a human bride to end his immortal life, and a grim reaper who has lost his memories...",
+          year: "2023",
+          episodes: "16",
+          rating: "9.3/10",
+          image:
+            "https://i.pinimg.com/736x/c6/1f/be/c61fbe6ec3674ea290bc43dee5bbe6a0.jpg",
+          featured: false,
+        },
+        {
+          id: 7,
+          title: "Crash Landing on You",
+          synopsis:
+            "A South Korean heiress crash lands in North Korea and falls in love with a North Korean army officer...",
+          year: "2022",
+          episodes: "16",
+          rating: "9.1/10",
+          image:
+            "https://i.pinimg.com/736x/44/ad/ca/44adca7b8e05a5d7acf02767e760c36e.jpg",
+          featured: false,
+        },
+        {
+          id: 8,
+          title: "Descendants of the Sun",
+          synopsis:
+            "A love story between a soldier and a doctor, set against the backdrop of a fictional war-torn country...",
+          year: "2021",
+          episodes: "16",
+          rating: "8.9/10",
+          image:
+            "https://i.pinimg.com/736x/df/5c/ad/df5cad58fe2c9a2d69923c70053d1576.jpg",
+          featured: false,
+        },
+        {
+          id: 9,
+          title: "All us Dead",
+          synopsis:
+            "A love story between a soldier and a doctor, set against the backdrop of a fictional war-torn country...",
+          year: "2021",
+          episodes: "16",
+          rating: "8.9/10",
+          image:
+            "https://i.pinimg.com/1200x/02/dd/19/02dd195f7ba790bb330971af420b01fe.jpg",
+          featured: false,
+        },
+        {
+          id: 10,
+          title: "Dendeiens Carry",
+          synopsis:
+            "A love story between a soldier and a doctor, set against the backdrop of a fictional war-torn country...",
+          year: "2021",
+          episodes: "16",
+          rating: "8.9/10",
+          image:
+            "https://i.pinimg.com/736x/9e/ea/bb/9eeabb14bcd8302a482e659195b17e4e.jpg",
+          featured: false,
+        },
+      ];
+
+      // Image slider functionality
+      let currentSlide = 0;
+      const slider = document.getElementById("slider");
+      const totalSlides = 3;
+
+      function nextSlide() {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        slider.style.transform = `translateX(-${currentSlide * 25}%)`;
+      }
+
+      // Auto slide every 5 seconds
+      setInterval(nextSlide, 5000);
+
+      // Generate drama cards
+      function createDramaCard(drama) {
+        return `
+                <div class="drama-card" onclick="openModal(${drama.id})">
+                    <div class="card-image" style="background-image: url('${drama.image}');"></div>
+                    <div class="card-content">
+                        <h3 class="card-title">${drama.title}</h3>
+                        <p class="card-synopsis">${drama.synopsis}</p>
+                    </div>
+                </div>
+            `;
+      }
+
+      // Load featured dramas
+      function loadFeaturedDramas() {
+        const featuredContainer = document.getElementById("featured-dramas");
+        const featuredDramas = dramaData.filter((drama) => drama.featured);
+        featuredContainer.innerHTML = featuredDramas
+          .map(createDramaCard)
+          .join("");
+      }
+
+      // Load all dramas
+      function loadAllDramas() {
+        const allContainer = document.getElementById("all-dramas");
+        allContainer.innerHTML = dramaData.map(createDramaCard).join("");
+      }
+
+      // Page navigation
+      function showPage(page) {
+        const homeNav = document.querySelector(
+          ".nav-link[onclick=\"showPage('home')\"]"
+        );
+        const collectionNav = document.querySelector(
+          ".nav-link[onclick=\"showPage('collection')\"]"
+        );
+        const homePage = document.getElementById("home-page");
+        const collectionPage = document.getElementById("collection-page");
+
+        if (page === "home") {
+          homeNav.classList.add("active");
+          collectionNav.classList.remove("active");
+          homePage.classList.add("active");
+          collectionPage.classList.remove("active");
+        } else {
+          collectionNav.classList.add("active");
+          homeNav.classList.remove("active");
+          collectionPage.classList.add("active");
+          homePage.classList.remove("active");
+        }
+      }
+
+      // Modal functionality
+      function openModal(dramaId) {
+        const drama = dramaData.find((d) => d.id === dramaId);
+        if (!drama) return;
+
+        document.getElementById(
+          "modal-image"
+        ).style.backgroundImage = `url('${drama.image}')`;
+        document.getElementById("modal-title").textContent = drama.title;
+        document.getElementById("modal-year").textContent = drama.year;
+        document.getElementById("modal-episodes").textContent = drama.episodes;
+        document.getElementById("modal-rating").textContent = drama.rating;
+        document.getElementById("modal-synopsis").textContent = drama.synopsis;
+
+        document.getElementById("modal-overlay").classList.add("active");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeModal() {
+        document.getElementById("modal-overlay").classList.remove("active");
+        document.body.style.overflow = "auto";
+      }
+
+      // Close modal when clicking outside
+      document
+        .getElementById("modal-overlay")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            closeModal();
+          }
+        });
+
+      // Close modal with ESC key
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          closeModal();
+        }
+      });
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", function () {
+        loadFeaturedDramas();
+        loadAllDramas();
+      });
+    </script>
+  </body>
+</html>
